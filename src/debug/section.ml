@@ -280,7 +280,7 @@ let rec map_tree f = function
 let print_profiling_info () =
   let total_time = Mtime_clock.elapsed () in
   let s_tree = section_tree (fun s ->
-      (Mtime.Span.to_ns s.prof_total) > ((Mtime.Span.to_ns @@ parent_time s) /. 100.)
+      (Int64.to_float (Mtime.Span.to_uin64_ns s.prof_total)) > ((Int64.to_float (Mtime.Span.to_uin64_ns @@ parent_time s)) /. 100.)
     ) root in
   let tree_box = PrintBox.(
       Simple.to_box (map_tree (fun s -> `Text (short_name s)) s_tree)) in
@@ -290,7 +290,7 @@ let print_profiling_info () =
       map_tree (fun s -> text (Format.asprintf "%a" Mtime.Span.pp s.prof_total)) s_tree))) in
   let rate_box = PrintBox.(vlist ~bars:false (flatten (
       map_tree (fun s -> text (Format.sprintf "%6.2f%%" (
-          (Mtime.Span.to_ms s.prof_total) /. (Mtime.Span.to_ms total_time) *. 100.))) s_tree))) in
+          (Int64.to_float (Mtime.Span.to_uint64_ns s.prof_total)) /. (Int64.to_float (Mtime.Span.to_uint64_ns total_time)) *. 100.))) s_tree))) in
   let b = PrintBox.(
       grid ~pad:(hpad 3) ~bars:true [|
         [| text "Section name"; text "Time profiled"; text "Profiled rate"; text "Calls" |];
@@ -304,7 +304,7 @@ let csv_prof_data fmt =
   let tree = section_tree (fun _ -> true) root in
   List.iter (fun s ->
       let name = match full_name s with "" -> "root" | s -> s in
-      Format.fprintf fmt "%s,%f@." name (Mtime.Span.to_ns s.prof_total)
+      Format.fprintf fmt "%s,%f@." name (Int64.to_float (Mtime.Span.to_uint64_ns s.prof_total))
     ) (flatten tree)
 
 

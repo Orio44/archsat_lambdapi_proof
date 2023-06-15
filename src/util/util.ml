@@ -54,7 +54,7 @@ let pp_time ~lvl fmt section =
   if not (Level.equal Level.error lvl) then begin
     if !time then
       Format.fprintf fmt "@{<Black>%% [%.3f %s]@} "
-        (Mtime.Span.to_s @@ Mtime_clock.elapsed ()) (Section.full_name section)
+        (Int64.to_float (Mtime.Span.to_uint64_ns @@ Mtime_clock.elapsed ()) *. 1e-9) (Section.full_name section)
     else
       Format.fprintf fmt "@{<Black>%% [%s]@} " (Section.full_name section)
   end
