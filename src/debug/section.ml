@@ -280,7 +280,7 @@ let rec map_tree f = function
 let print_profiling_info () =
   let total_time = Mtime_clock.elapsed () in
   let s_tree = section_tree (fun s ->
-      (Int64.to_float (Mtime.Span.to_uin64_ns s.prof_total)) > ((Int64.to_float (Mtime.Span.to_uin64_ns @@ parent_time s)) /. 100.)
+      (Int64.to_float (Mtime.Span.to_uint64_ns s.prof_total)) > ((Int64.to_float (Mtime.Span.to_uint64_ns @@ parent_time s)) /. 100.)
     ) root in
   let tree_box = PrintBox.(
       Simple.to_box (map_tree (fun s -> `Text (short_name s)) s_tree)) in
