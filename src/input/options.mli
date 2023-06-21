@@ -87,12 +87,18 @@ type dedukti_options = {
   norm_big    : bool;
 }
 
+type lambdapi_options = {
+  lp_term        : Format.formatter option;
+  lp_term_big    : bool;
+}
+
 type proof_options = {
   active      : bool;
   context     : bool;
   coq         : coq_options;
   dot         : dot_options;
   dedukti     : dedukti_options;
+  lambdapi    : lambdapi_options;
   unsat_core  : Format.formatter option;
 }
 
