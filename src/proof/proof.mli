@@ -12,9 +12,10 @@ val section : Section.t
 (** {2 Languages & printing} *)
 
 type lang =
-  | Dot     (** The DOT graphviz language *)
-  | Coq     (** The Coq language *)
-  | Dedukti (** The Dedukti language *)
+  | Dot      (** The DOT graphviz language *)
+  | Coq      (** The Coq language *)
+  | Dedukti  (** The Dedukti language *)
+  | Lambdapi (**The Lambdapi language*) 
 (** Supported languages for proof output (not to be confused with
     proof term output). *)
 
@@ -177,6 +178,7 @@ val mk_step :
   ?prelude:('state -> Prelude.t list) ->
   ?dot:pretty * (Format.formatter -> 'state -> unit) ->
   ?dedukti:pretty * (Format.formatter -> 'state -> unit) ->
+  ?lambdapi:pretty * (Format.formatter -> 'state -> unit) ->
   coq:pretty * (Format.formatter -> 'state -> unit) ->
   compute:(sequent -> 'input -> 'state * sequent array) ->
   elaborate:('state -> Term.t array -> Term.t) -> string ->

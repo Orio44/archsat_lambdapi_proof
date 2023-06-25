@@ -13,9 +13,10 @@ let () = Stats.attach section stats_group
 (* ************************************************************************ *)
 
 type lang =
-  | Dot     (**)
-  | Coq     (**)
-  | Dedukti (**)
+  | Dot      (**)
+  | Coq      (**)
+  | Dedukti  (**)
+  | Lambdapi (**)
 (* Proof languages supported. *)
 
 type pretty =
@@ -297,6 +298,16 @@ module Prelude = struct
             Dedukti.Print.id id Dedukti.Print.fragile t
         ) (f Dedukti)
 
+  let lp_term fmt = function
+    | Require id ->
+      Format.fprintf fmt "/* Prelude: Module import */@\nRequire Import %a.@\n" Lambdapi.Print.id id
+      | Alias (id, f) ->
+        CCOpt.iter (fun t ->
+            Format.fprintf fmt
+              "/* Prelude: Alias */@\n@[<hv 2>def %a :=@ @[<hov>%a@]@].@\n"
+              Lambdapi.Print.id id Lambdapi.Print.fragile t
+          ) (f Lambdapi)
+
   (** Prelude dependencies *)
 
   module S = Set.Make(Aux)
@@ -419,16 +430,18 @@ let _prelude _ = []
 
 let _dummy_dot_print = Branching, (fun fmt _ -> Format.fprintf fmt "N/A")
 let _dummy_dk_print = Branching, (fun _ _ -> assert false)
+let _dummy_lp_print = Branching, (fun _ _ -> assert false)
 
 let mk_step
     ?(prelude=_prelude)
     ?(dot=_dummy_dot_print)
     ?(dedukti=_dummy_dk_print)
+    ?(lambdapi=_dummy_lp_print)
     ~coq ~compute ~elaborate name =
   let stat = Stats.mk name in
   let () = Stats.add_to_group stats_group stat in
   { name; prelude; compute; elaborate; stat;
-    print = (function Dot -> dot | Coq -> coq | Dedukti -> dedukti); }
+    print = (function Dot -> dot | Coq -> coq | Dedukti -> dedukti | Lambdapi -> lambdapi); }
 
 (* Building proofs *)
 (* ************************************************************************ *)
@@ -690,6 +703,19 @@ let print_dk_big_term fmt (_, t) =
     "(; PROOF START ;)@\n@[<hov>%a@]@\n(; PROOF END ;)"
     Dedukti.Print.term t
 
+(* Lambdapi printing *)
+(* ************************************************************************ *)
+
+let print_lp_term fmt (_, t) =
+  Format.fprintf fmt
+    "/* PROOF START */@\n@[<hov>%a@]@\n/* PROOF END */"
+    Lambdapi.Print.term t
+
+let print_lp_big_term fmt (_, t) =
+  Format.fprintf fmt
+    "/* PROOF START */@\n@[<hov>%a@]@\n/* PROOF END */"
+    Lambdapi.Print.term t
+
 (* Inspecting proofs *)
 (* ************************************************************************ *)
 
@@ -741,6 +767,7 @@ let print_aux = function
   | Dot -> print_dot
   | Coq -> print_coq
   | Dedukti -> assert false
+  | Lambdapi -> assert false
 
 let print_prelude mode lang =
   match mode, lang with
@@ -749,6 +776,8 @@ let print_prelude mode lang =
   | `Term, Coq -> Prelude.coq_term
   | `Proof, Dedukti -> assert false
   | `Term, Dedukti -> Prelude.dk_term
+  | `Proof, Lambdapi -> assert false
+  | `Term, Lambdapi -> Prelude.lp_term
 
 let print_term_aux lang big =
   match lang, big with
@@ -757,6 +786,8 @@ let print_term_aux lang big =
   | Coq, true -> print_coq_big_term
   | Dedukti, false -> print_dk_term
   | Dedukti, true -> print_dk_big_term
+  | Lambdapi, false -> print_lp_term
+  | Lambdapi, true -> print_lp_big_term
 
 let print_preludes_aux ~mode ~lang fmt l =
   Prelude.topo l (fun p ->
