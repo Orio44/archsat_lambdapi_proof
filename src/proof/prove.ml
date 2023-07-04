@@ -14,6 +14,7 @@ let coqterm_section = Section.make ~parent:section "coqterm_print"
 let coqnorm_section = Section.make ~parent:section "coqnorm_print"
 let dkterm_section = Section.make ~parent:section "dkterm_print"
 let dknorm_section = Section.make ~parent:section "dknorm_print"
+let lpterm_section = Section.make ~parent:section "lpterm_print"
 
 module P = Solver.Proof
 
@@ -119,6 +120,7 @@ let declare_id_aux ?loc opt id =
   pp_opt (Coq.declare_id ?loc) Options.(opt.coq.norm) id;
   pp_opt (Dedukti.declare_id ?loc) Options.(opt.dedukti.term) id;
   pp_opt (Dedukti.declare_id ?loc) Options.(opt.dedukti.norm) id;
+  pp_opt (Lambdapi.declare_id ?loc) Options.(opt.lambdapi.lp_term) id;
   ()
 
 let declare_implicits opt l =
@@ -153,6 +155,7 @@ let init opt () =
   pp_opt Dedukti.init Options.(opt.proof.dedukti.term) opt;
   pp_opt Dedukti.init Options.(opt.proof.dedukti.norm) opt;
   pp_opt Dot.init_full Options.(opt.proof.dot.full) opt;
+  pp_opt Lambdapi.init Options.(opt.proof.lambdapi.lp_term) opt;
   ()
 
 (* Hyp declarations *)
@@ -165,6 +168,7 @@ let declare_hyp_aux ?loc opt id =
   pp_opt (Coq.declare_hyp ?loc) Options.(opt.coq.norm) id;
   pp_opt (Dedukti.declare_hyp ?loc) Options.(opt.dedukti.term) id;
   pp_opt (Dedukti.declare_hyp ?loc) Options.(opt.dedukti.norm) id;
+  pp_opt (Lambdapi.declare_hyp ?loc) Options.(opt.lambdapi.lp_term) id;
   ()
 
 let declare_hyp ?loc opt id implicit p =
@@ -184,6 +188,7 @@ let declare_goal_aux ?loc opt id =
   pp_opt (Coq.declare_goal_term ?loc) Options.(opt.coq.norm) id;
   pp_opt (Dedukti.declare_goal_term ?loc) Options.(opt.dedukti.term) id;
   pp_opt (Dedukti.declare_goal_term ?loc) Options.(opt.dedukti.norm) id;
+  pp_opt (Lambdapi.declare_goal_term ?loc) Options.(opt.lambdapi.lp_term) id;
   ()
 
 let declare_goal ?loc opt id implicit (solver_id, p) =
@@ -211,6 +216,8 @@ let declare_term_preludes opt proof =
     (Proof.print_term_preludes ~lang:Proof.Dedukti);
   pp_lazy None dkterm_section Options.(opt.dedukti.norm) proof
     (Proof.print_term_preludes ~lang:Proof.Dedukti);
+  pp_lazy None lpterm_section Options.(opt.lambdapi.lp_term) proof
+    (Proof.print_term_preludes ~lang:Proof.Lambdapi);
   ()
 
 (* Output proofs *)
@@ -317,6 +324,10 @@ let output_proof opt p =
   let () = pp_lazy (Some "dot") dot_section Options.(opt.dot.full) script
       (print_context true Dot.proof_context
          (Proof.print ~lang:Proof.Dot)) in
+  (* Print the lazy proof term in lambdapi *)
+  let () = pp_lazy (Some "lpterm") lpterm_section Options.(opt.lambdapi.lp_term) term
+      (print_context opt.Options.context Lambdapi.proof_term_context
+          (Proof.print_term ~big:Options.(opt.lambdapi.lp_term_big) ~lang:Proof.Lambdapi)) in
   (* Done ! exit the profiling section, ^^ *)
   ()
 
