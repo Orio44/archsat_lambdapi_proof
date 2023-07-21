@@ -2,8 +2,9 @@
 
 let section = Section.make ~parent:Proof.section "logic"
 
-let tag ?dk ?coq id =
+let tag ?dk ?coq ?lp id =
   CCOpt.iter (fun s -> Expr.Id.tag id Dedukti.Print.name @@ Pretty.Exact s) dk;
+  CCOpt.iter (fun s -> Expr.Id.tag id Lambdapi.Print.name @@ Pretty.Exact s) lp;
   CCOpt.iter (fun s -> Expr.Id.tag id Coq.Print.name @@ Pretty.Exact s) coq;
   ()
 
@@ -13,7 +14,7 @@ let tag ?dk ?coq id =
 let classical_id = Expr.Id.mk_new "classical" ()
 let classical = Proof.Prelude.require classical_id
 
-let () = tag classical_id ~dk:"classical" ~coq:"Coq.Logic.Classical"
+let () = tag classical_id ~dk:"classical" ~coq:"Coq.Logic.Classical" ~lp:"classical"
 
 (* Useful constants *)
 (* ************************************************************************ *)
@@ -82,7 +83,7 @@ let and_elim_id, and_elim_alias =
     ) in
   let id = Term.define "and_elim" t in
   id, Proof.Prelude.alias id (function
-      | Proof.Coq -> Some t | Proof.Dot | Proof.Dedukti -> None)
+      | Proof.Coq -> Some t | Proof.Dot | Proof.Dedukti | Proof.Lambdapi -> None)
 
 let or_introl_id =
   let a = Term.var "A" Term._Prop in
@@ -145,7 +146,7 @@ let or_elim_id, or_elim_alias =
     ) in
   let id = Term.define "or_elim" t in
   id, Proof.Prelude.alias id (function
-      | Proof.Coq -> Some t | Proof.Dot | Proof.Dedukti -> None)
+      | Proof.Coq -> Some t | Proof.Dot | Proof.Dedukti | Proof.Lambdapi -> None)
 
 let equiv_refl_id =
   let p = Term.var "P" Term._Prop in
@@ -196,19 +197,19 @@ let equiv_refl_term = Term.id equiv_refl_id
 let equiv_trans_term = Term.id equiv_trans_id
 
 let () =
-  tag true_proof_id   ~dk:"logic.true_intro"    ~coq:"I";
-  tag exfalso_id      ~dk:"logic.false_elim"    ~coq:"False_ind";
-  tag nnpp_id         ~dk:"classical.nnpp"      ~coq:"NNPP";
-  tag and_intro_id    ~dk:"logic.and_intro"     ~coq:"conj";
-  tag and_ind         ~dk:"logic.and_ind"       ~coq:"and_ind";
-  tag and_elim_id     ~dk:"logic.and_elim"      ?coq:None;
-  tag or_introl_id    ~dk:"logic.or_introl"     ~coq:"or_introl";
-  tag or_intror_id    ~dk:"logic.or_intror"     ~coq:"or_intror";
-  tag or_ind          ~dk:"logic.or_ind"        ~coq:"or_ind";
-  tag or_elim_id      ~dk:"logic.or_elim"       ?coq:None;
-  tag equiv_not_id    ~dk:"logic.equiv_not"     ~coq:"not_iff_compat";
-  tag equiv_refl_id   ~dk:"logic.equiv_refl"    ~coq:"iff_refl";
-  tag equiv_trans_id   ~dk:"logic.equiv_trans"  ~coq:"@iff_trans";
+  tag true_proof_id   ~dk:"logic.true_intro"    ~coq:"I"                ~lp:"true_intro";
+  tag exfalso_id      ~dk:"logic.false_elim"    ~coq:"False_ind"        ~lp:"false_elim";
+  tag nnpp_id         ~dk:"classical.nnpp"      ~coq:"NNPP"             ~lp:"nnpp";
+  tag and_intro_id    ~dk:"logic.and_intro"     ~coq:"conj"             ~lp:"and_intro";
+  tag and_ind         ~dk:"logic.and_ind"       ~coq:"and_ind"          ~lp:"and_ind";
+  tag and_elim_id     ~dk:"logic.and_elim"      ?coq:None               ~lp:"and_elim";
+  tag or_introl_id    ~dk:"logic.or_introl"     ~coq:"or_introl"        ~lp:"or_introl";
+  tag or_intror_id    ~dk:"logic.or_intror"     ~coq:"or_intror"        ~lp:"or_intror";
+  tag or_ind          ~dk:"logic.or_ind"        ~coq:"or_ind"           ~lp:"or_ind";
+  tag or_elim_id      ~dk:"logic.or_elim"       ?coq:None               ~lp:"or_elim";
+  tag equiv_not_id    ~dk:"logic.equiv_not"     ~coq:"not_iff_compat"   ~lp:"equiv_not";
+  tag equiv_refl_id   ~dk:"logic.equiv_refl"    ~coq:"iff_refl"         ~lp:"equiv_refl";
+  tag equiv_trans_id  ~dk:"logic.equiv_trans"   ~coq:"@iff_trans"       ~lp:"equiv_trans";
   ()
 
 

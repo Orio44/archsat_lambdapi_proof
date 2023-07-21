@@ -2,8 +2,9 @@
 
 let section = Section.make ~parent:Proof.section "quant"
 
-let tag ?dk ?coq id =
+let tag ?dk ?coq ?lp id =
   CCOpt.iter (fun s -> Expr.Id.tag id Dedukti.Print.name @@ Pretty.Exact s) dk;
+  CCOpt.iter (fun s -> Expr.Id.tag id Lambdapi.Print.name @@ Pretty.Exact s) lp;
   CCOpt.iter (fun s -> Expr.Id.tag id Coq.Print.name @@ Pretty.Exact s) coq;
   ()
 
@@ -13,7 +14,7 @@ let tag ?dk ?coq id =
 let epsilon_prelude_id = Expr.Id.mk_new "epsilon" ()
 let epsilon_prelude = Proof.Prelude.require epsilon_prelude_id
 
-let () = tag epsilon_prelude_id ~dk:"epsilon" ~coq:"Coq.Logic.Epsilon"
+let () = tag epsilon_prelude_id ~dk:"epsilon" ~coq:"Coq.Logic.Epsilon" ~lp:"epsilon"
 
 (* Useful constants for instanciation *)
 (* ************************************************************************ *)
@@ -62,10 +63,10 @@ let not_ex_not_all_type = Term.declare "not_ex_not_all_type" Term._Type
 let not_ex_all_not_type = Term.declare "not_ex_all_not_type" Term._Type
 
 let () =
-  tag not_ex_all_not  ~dk:"classical.not_ex_all_not"  ~coq:"not_ex_all_not";
-  tag not_ex_not_all  ~dk:"classical.not_ex_not_all"  ~coq:"not_ex_not_all";
-  tag not_ex_all_not_type ~dk:"classical.not_ex_all_not_type"     ?coq:None;
-  tag not_ex_not_all_type ~dk:"classical.not_ex_not_all_type"     ?coq:None;
+  tag not_ex_all_not      ~dk:"classical.not_ex_all_not"        ~coq:"not_ex_all_not" ~lp:"not_ex_all_not";
+  tag not_ex_not_all      ~dk:"classical.not_ex_not_all"        ~coq:"not_ex_not_all" ~lp:"not_ex_not_all";
+  tag not_ex_all_not_type ~dk:"classical.not_ex_all_not_type"   ?coq:None             ~lp:"not_ex_all_not_type";
+  tag not_ex_not_all_type ~dk:"classical.not_ex_not_all_type"   ?coq:None             ~lp:"not_ex_not_all_type";
   Expr.Id.tag not_ex_all_not Dedukti.Print.variant (function
       | u :: r when Term.Reduced.equal Term._Type u ->
         Term.id not_ex_all_not_type, r
@@ -76,6 +77,16 @@ let () =
         Term.id not_ex_not_all_type, r
       | l -> not_ex_not_all_term, l
     );
+  Expr.Id.tag not_ex_all_not Lambdapi.Print.variant (function
+      | u :: r when Term.Reduced.equal Term._Type u ->
+        Term.id not_ex_all_not_type, r
+      | l -> not_ex_all_not_term, l
+  );
+  Expr.Id.tag not_ex_not_all Lambdapi.Print.variant (function
+      | u :: r when Term.Reduced.equal Term._Type u ->
+        Term.id not_ex_not_all_type, r
+      | l -> not_ex_not_all_term, l
+  );
   ()
 
 
@@ -256,12 +267,12 @@ let not_all_ex_not_type = Term.declare "not_all_ex_not_type" Term._Type
 let not_all_not_ex_type = Term.declare "not_all_not_ex_type" Term._Type
 
 let () =
-  tag inhabited         ~dk:"logic.inhabited"           ~coq:"inhabited";
-  tag inhabits          ~dk:"logic.inhabits"            ~coq:"inhabits";
-  tag epsilon           ~dk:"epsilon.epsilon"           ~coq:"epsilon";
-  tag epsilon_spec      ~dk:"epsilon.epsilon_spec"      ~coq:"epsilon_spec";
-  tag epsilon_type      ~dk:"epsilon.epsilon_type"      ?coq:None;
-  tag epsilon_type_spec ~dk:"epsilon.epsilon_type_spec" ?coq:None;
+  tag inhabited         ~dk:"logic.inhabited"           ~coq:"inhabited"      ~lp:"inhabited";
+  tag inhabits          ~dk:"logic.inhabits"            ~coq:"inhabits"       ~lp:"inhabits";
+  tag epsilon           ~dk:"epsilon.epsilon"           ~coq:"epsilon"        ~lp:"epsilon";
+  tag epsilon_spec      ~dk:"epsilon.epsilon_spec"      ~coq:"epsilon_spec"   ~lp:"epsilon_spec";
+  tag epsilon_type      ~dk:"epsilon.epsilon_type"      ?coq:None             ~lp:"epsilon_type";
+  tag epsilon_type_spec ~dk:"epsilon.epsilon_type_spec" ?coq:None             ~lp:"epsilon_type_spec";
   Expr.Id.tag epsilon Dedukti.Print.variant (function
       | u :: _ :: r when Term.Reduced.equal Term._Type u ->
         Term.id epsilon_type, r
@@ -272,16 +283,36 @@ let () =
         Term.id epsilon_type_spec, r
       | l -> epsilon_spec_term, l
     );
-  tag not_all_ex_not      ~dk:"classical.not_all_ex_not"      ~coq:"not_all_ex_not";
-  tag not_all_not_ex      ~dk:"classical.not_all_not_ex"      ~coq:"not_all_not_ex";
-  tag not_all_ex_not_type ~dk:"classical.not_all_ex_not_type" ?coq:None;
-  tag not_all_not_ex_type ~dk:"classical.not_all_not_ex_type" ?coq:None;
+  Expr.Id.tag epsilon Lambdapi.Print.variant (function
+      | u :: _ :: r when Term.Reduced.equal Term._Type u ->
+        Term.id epsilon_type, r
+      | l -> epsilon_term, l
+  );
+  Expr.Id.tag epsilon_spec Lambdapi.Print.variant (function
+      | u :: _ :: r when Term.Reduced.equal Term._Type u ->
+        Term.id epsilon_type_spec, r
+      | l -> epsilon_spec_term, l
+  );
+  tag not_all_ex_not      ~dk:"classical.not_all_ex_not"      ~coq:"not_all_ex_not"   ~lp:"not_all_ex_not";
+  tag not_all_not_ex      ~dk:"classical.not_all_not_ex"      ~coq:"not_all_not_ex"   ~lp:"not_all_not_ex";
+  tag not_all_ex_not_type ~dk:"classical.not_all_ex_not_type" ?coq:None               ~lp:"not_all_ex_not_type";
+  tag not_all_not_ex_type ~dk:"classical.not_all_not_ex_type" ?coq:None               ~lp:"not_all_not_ex_type";
   Expr.Id.tag not_all_ex_not Dedukti.Print.variant (function
       | u :: r when Term.Reduced.equal Term._Type u ->
         Term.id not_all_ex_not_type, r
       | l -> not_all_ex_not_term, l
     );
   Expr.Id.tag not_all_not_ex Dedukti.Print.variant (function
+      | u :: r when Term.Reduced.equal Term._Type u ->
+        Term.id not_all_not_ex_type, r
+      | l -> not_all_not_ex_term, l
+    );
+  Expr.Id.tag not_all_ex_not Lambdapi.Print.variant (function
+      | u :: r when Term.Reduced.equal Term._Type u ->
+        Term.id not_all_ex_not_type, r
+      | l -> not_all_ex_not_term, l
+    );
+  Expr.Id.tag not_all_not_ex Lambdapi.Print.variant (function
       | u :: r when Term.Reduced.equal Term._Type u ->
         Term.id not_all_not_ex_type, r
       | l -> not_all_not_ex_term, l

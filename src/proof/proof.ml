@@ -300,11 +300,11 @@ module Prelude = struct
 
   let lp_term fmt = function
     | Require id ->
-      Format.fprintf fmt "/* Prelude: Module import */@\nRequire Import %a.@\n" Lambdapi.Print.id id
+      Format.fprintf fmt "/* Prelude: Module import */@\nrequire open lambdapi_static.%a;@\n" Lambdapi.Print.id id
       | Alias (id, f) ->
         CCOpt.iter (fun t ->
             Format.fprintf fmt
-              "/* Prelude: Alias */@\n@[<hv 2>def %a :=@ @[<hov>%a@]@].@\n"
+              "/* Prelude: Alias */@\n@[<hv 2>symbol %a ≔@ @[<hov>%a@]@];@\n"
               Lambdapi.Print.id id Lambdapi.Print.fragile t
           ) (f Lambdapi)
 
