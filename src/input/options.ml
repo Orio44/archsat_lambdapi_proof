@@ -86,6 +86,7 @@ type dedukti_options = {
 type lambdapi_options = {
   lp_term        : Format.formatter option;
   lp_term_big    : bool;
+  lp_sig         : string option;
 }
 
 type proof_options = {
@@ -211,9 +212,9 @@ let dedukti_opts term term_big norm norm_big =
   let norm = formatter_of_out_descr norm in
   { term; term_big; norm; norm_big; }
 
-let lambdapi_opts lp_term lp_term_big =
+let lambdapi_opts lp_term lp_term_big lp_sig =
   let lp_term = formatter_of_out_descr lp_term in
-  { lp_term; lp_term_big; }
+  { lp_term; lp_term_big; lp_sig; }
 
 let proof_opts prove no_context coq dot dedukti lambdapi unsat_core =
   let context = not no_context in
@@ -672,7 +673,11 @@ let lambdapi_t =
     let doc = "Set whether to use the big term printer or not for lambdapi proof terms" in
     Arg.(value & flag & info ["lpterm-big"] ~docs ~doc)
   in
-  Term.(const lambdapi_opts $ term $ term_big)  
+  let lpsig =
+    let doc = "Set the file in which the symbols are declared." in
+    Arg.(value & opt (some string) None & info ["lpsig"] ~docs ~doc)
+  in
+  Term.(const lambdapi_opts $ term $ term_big $ lpsig)
 
 let proof_t =
   let docs = proof_sect in

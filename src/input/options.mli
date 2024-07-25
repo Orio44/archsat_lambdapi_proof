@@ -90,6 +90,7 @@ type dedukti_options = {
 type lambdapi_options = {
   lp_term        : Format.formatter option;
   lp_term_big    : bool;
+  lp_sig         : string option;
 }
 
 type proof_options = {

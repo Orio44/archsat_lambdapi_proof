@@ -120,7 +120,9 @@ let declare_id_aux ?loc opt id =
   pp_opt (Coq.declare_id ?loc) Options.(opt.coq.norm) id;
   pp_opt (Dedukti.declare_id ?loc) Options.(opt.dedukti.term) id;
   pp_opt (Dedukti.declare_id ?loc) Options.(opt.dedukti.norm) id;
-  pp_opt (Lambdapi.declare_id ?loc) Options.(opt.lambdapi.lp_term) id;
+  match Options.(opt.lambdapi.lp_sig) with
+    |None -> pp_opt (Lambdapi.declare_id ?loc) Options.(opt.lambdapi.lp_term) id;
+    |Some str -> ();
   ()
 
 let declare_implicits opt l =
