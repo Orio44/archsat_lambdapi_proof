@@ -208,7 +208,7 @@ let init fmt opt =
     "require open Logic.Zenon.FOL Logic.Zenon.zen lambdapi_static.logic;";
   match Options.(opt.proof.lambdapi.lp_sig) with
     |None -> ()
-    |Some str -> Format.fprintf fmt "require open %s as S;@\n" str
+    |Some str -> Format.fprintf fmt "require open %s;@\nsymbol _i ≔ ι;@\n" str
 
 let declare_loc fmt = function
   | None ->
